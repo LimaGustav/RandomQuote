@@ -17,6 +17,7 @@ export default class RandomQuotes extends Component {
     }
   }
 
+  // Search a random quote using a API
   listQuotes = (submit) => {
 
 
@@ -35,31 +36,6 @@ export default class RandomQuotes extends Component {
     submit.preventDefault();
   }
 
-
-  searchImage = (submit) => {
-    submit.preventDefault();
-
-    client.photos.search({ query : this.state.Word, per_page: 1 })
-
-      // .then(response => console.log(response.photos[0].src.original))
-
-      .then(response => console.log(response.photos))
-
-      .then(this.cleanQuote)
-
-      .catch(erro => console.log(erro))
-  }
-
-  cleanQuote = () => {
-    this.setState({ quote: '' })
-
-    console.log("cheguei aqui")
-  }
-
-  cleanImage = () => {
-    this.setState({ urlPhoto: '' })
-  }
-
   randomWord = (submit) => {
     fetch('https://random-word-api.herokuapp.com/word?number=1')
 
@@ -69,6 +45,38 @@ export default class RandomQuotes extends Component {
 
       .then(word => this.setState({Word: word[0]}))
   }
+
+  /// Uses pexel libary to search a image through a specific query {word}
+  searchImage = (submit) => {
+    submit.preventDefault();
+
+    this.randomWord();
+
+    client.photos.search({ query : this.state.Word, per_page: 1 })
+
+      // .then(response => console.log(response.photos[0].src.original))
+
+      .then(
+        response => {if (response.photos.length === 0) {this.setState({quote : "Image not found, try again", urlPhoto:""})} else {this.setState({urlPhoto:response.photos[0].src.original})}}
+      )
+
+      .catch(erro => console.log(erro))
+
+    this.cleanQuote()
+  }
+
+  cleanQuote = () => {
+    this.setState({ quote: '' })
+
+    console.log("Quote Clen")
+  }
+
+  cleanImage = () => {
+    this.setState({ urlPhoto: '' })
+  }
+
+  /// Search a random word using a API
+
 
   componentDidMount() {
     this.randomWord();

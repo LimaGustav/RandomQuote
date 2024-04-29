@@ -13,7 +13,8 @@ export default class RandomQuotes extends Component {
       photo: [],
       quote: '',
       urlPhoto: '',
-      Word: ''
+      Word: '',
+      Author: ''
     }
   }
 
@@ -25,9 +26,12 @@ export default class RandomQuotes extends Component {
 
       .then(response => response.json())
 
-      .then(dados => this.setState({ quote: dados.content }))
+      .then(dados => {
+        console.log(dados)
+        this.setState({ Author: dados.author })
+        this.setState({ quote: dados.content })
 
-      .then(console.log("I got here"))
+    })
 
       .then(this.cleanImage)
 
@@ -41,23 +45,29 @@ export default class RandomQuotes extends Component {
 
       .then(response => response.json())
 
-      // .then(dados => console.log(dados[0]))
-
-      .then(word => this.setState({Word: word[0]}))
+      .then(word => {
+        this.setState({Word: word[0]})
+    })
   }
 
   /// Uses pexel libary to search a image through a specific query {word}
-  searchImage = (submit) => {
-    submit.preventDefault();
-
+  searchImage = () => {
+    console.log("passei")
     this.randomWord();
 
     client.photos.search({ query : this.state.Word, per_page: 1 })
 
-      // .then(response => console.log(response.photos[0].src.original))
 
       .then(
-        response => {if (response.photos.length === 0) {this.setState({quote : "Image not found, try again", urlPhoto:""})} else {this.setState({urlPhoto:response.photos[0].src.original})}}
+        // response => {if (response.photos.length === 0) {this.setState({quote : "Image not found, try again", urlPhoto:""})} else {this.setState({urlPhoto:response.photos[0].src.original})}}
+
+        response => 
+        {
+          if (response.photos.length === 0)
+            this.searchImage();
+          else 
+            this.setState({urlPhoto:response.photos[0].src.original})
+        }
       )
 
       .catch(erro => console.log(erro))
@@ -85,7 +95,7 @@ export default class RandomQuotes extends Component {
   render() {
     return (
       <main>
-        <img style={this.state.urlPhoto === '' ? { display: 'none' } : { display: 'block' }} className="imagePexel" src={this.state.urlPhoto} alt="Image"></img>
+        <img alt='' style={this.state.urlPhoto === '' ? { display: 'none' } : { display: 'block' }} className="imagePexel" src={this.state.urlPhoto}></img>
         <div className="container">
 
           <h1 style={this.state.quote === '' ? { display: 'none' } : { display: 'block' }}>
@@ -93,14 +103,17 @@ export default class RandomQuotes extends Component {
               '"' + this.state.quote + '"'
             }
           </h1>
+          {/* <p style={this.state.quote === '' ? { display: 'none' } : { display: 'block' }}> 
+by:  {this.state.Author}
+          </p> */}
 
           <div className="container_form">
-            <form onSubmit onSubmit={this.listQuotes}>
-              <button className="btn" type="submit">Quote</button>
-            </form>
-            <form onSubmit={this.searchImage} >
-              <button className="btn" type="submit">Image</button>
-            </form>
+          
+              <button  onClick={this.listQuotes} className="btn" type="submit">Quote</button>
+            
+          
+              <button onClick={this.searchImage} className="btn" type="submit">Image</button>
+           
           </div>
 
         </div>
